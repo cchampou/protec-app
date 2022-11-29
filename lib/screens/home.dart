@@ -44,16 +44,24 @@ class _Home extends State<Home> {
       ),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Bienvenue sur ProtecApp'),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AlertScreen()));
-                },
-                child: const Text('Go to test alert'))
+            Image.asset(
+              'images/protection_civile_logo.png',
+              width: 100,
+              height: 100,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Bienvenue sur ProtecApp',
+              style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo[900]),
+            ),
           ],
         ),
       ),

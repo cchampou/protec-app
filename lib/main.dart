@@ -19,8 +19,8 @@ void main() async {
     alert: true,
     announcement: false,
     badge: true,
-    carPlay: false,
-    criticalAlert: false,
+    carPlay: true,
+    criticalAlert: true,
     provisional: false,
     sound: true,
   );
