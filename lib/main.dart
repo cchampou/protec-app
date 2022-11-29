@@ -1,47 +1,57 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
 
-void main() {
-  runApp(const MyApp());
+import 'package:alert/screens/home.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'screens/alert.dart';
+import 'firebase_options.dart';
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    print('User granted permission');
+  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    print('User granted provisional permission');
+  } else {
+    print('User declined or has not accepted permission');
+  }
+  print(await messaging.getToken());
+  runApp(const Application());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Application extends StatefulWidget {
+  const Application({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<StatefulWidget> createState() => _Application();
+}
+
+class _Application extends State<Application> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Alert PC',
+      title: 'ADPC69 - ProtecApp',
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
-      home: const MyHomePage(title: 'Protection Civile Alert'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [],
-        ),
-      ),
+      home: const Home(),
     );
   }
 }
