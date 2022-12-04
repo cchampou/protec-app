@@ -1,6 +1,8 @@
 import 'dart:math';
 
-import 'package:alert/screens/home.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'screens/home.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,6 +16,20 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel',
+    'Déclenchement PC',
+    description: 'Déclenchement nécessitant une réponse immédiate de votre part',
+    importance: Importance.max,
+  );
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
 
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
