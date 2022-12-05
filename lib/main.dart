@@ -1,14 +1,12 @@
-import 'dart:math';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:protec_app/screens/register.dart';
 
-import 'screens/home.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/alert.dart';
 import 'firebase_options.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,15 +18,17 @@ void main() async {
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
     'high_importance_channel',
     'Déclenchement PC',
-    description: 'Déclenchement nécessitant une réponse immédiate de votre part',
+    description:
+        'Déclenchement nécessitant une réponse immédiate de votre part',
     importance: Importance.max,
   );
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   NotificationSettings settings = await messaging.requestPermission(
@@ -60,6 +60,33 @@ class Application extends StatefulWidget {
 }
 
 class _Application extends State<Application> {
+
+  final navigatorKey = GlobalKey<NavigatorState>();
+
+  Future<void> setupInteractedMessage() async {
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    FirebaseMessaging.onMessage.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (navigatorKey.currentContext is BuildContext) {
+      Navigator.of(navigatorKey.currentContext as BuildContext).pushReplacement(MaterialPageRoute(
+          builder: (context) => AlertScreen(message: message)));
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setupInteractedMessage();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -67,7 +94,8 @@ class _Application extends State<Application> {
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
-      home: const Home(),
+      home: const Register(),
+      navigatorKey: navigatorKey,
     );
   }
 }

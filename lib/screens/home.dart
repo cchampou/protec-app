@@ -1,7 +1,6 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:protec_app/components/app_bar.dart';
 
-import 'alert.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,37 +10,17 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
-  Future<void> setupInteractedMessage() async {
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
 
-    if (initialMessage != null) {
-      // _handleMessage(initialMessage);
-    }
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  }
-
-  void _handleMessage(RemoteMessage message) {
-    print('Message clicked!');
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const AlertScreen()));
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-
-    setupInteractedMessage();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ADPC69 - ProtecApp'),
-      ),
+      appBar: appBar('Accueil'),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
