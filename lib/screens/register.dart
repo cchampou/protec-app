@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:protec_app/components/app_bar.dart';
 import 'package:http/http.dart' as http;
 
-import 'alert.dart';
 import 'home.dart';
+
+const String apiUrl = 'https://protect-app.loca.lt/api';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -46,7 +47,7 @@ class _RegisterState extends State<Register> {
       });
       return;
     }
-    http.get(Uri.parse('http://192.168.1.76:3000/api/check/$deviceId')).then((response) {
+    http.get(Uri.parse('$apiUrl/device/check/$deviceId')).then((response) {
       if (mounted == false) {
         return;
       }
@@ -66,7 +67,7 @@ class _RegisterState extends State<Register> {
       _isLoading = true;
     });
     String? deviceId = await messaging.getToken();
-    http.post(Uri.parse('http://192.168.1.76:3000/api/register'),
+    http.post(Uri.parse('$apiUrl/device/register'),
         body: jsonEncode(<String, String?>{
           'registrationToken': _tokenController.value.text,
           'deviceId': deviceId
