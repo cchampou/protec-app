@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:protec_app/components/app_bar.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:protec_app/components/event_card.dart';
+import 'package:protec_app/components/welcome.dart';
+import 'package:protec_app/screens/register.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -10,11 +15,25 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
+  final events = [];
 
+  Future<void> fetchEvents() async {
+    http.Response response = await http.get(Uri.parse('$apiUrl/event'));
+    if (response.statusCode == 200) {
+      setState(() {
+        events.clear();
+        events.addAll(jsonDecode(response.body));
+      });
+      print(events);
+    } else {
+      print(response.statusCode);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    fetchEvents();
   }
 
   @override
@@ -22,27 +41,16 @@ class _Home extends State<Home> {
     return Scaffold(
       appBar: appBar('Accueil'),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'images/protection_civile_logo.png',
-              width: 100,
-              height: 100,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Bienvenue sur ProtecApp',
-              style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.indigo[900]),
-            ),
-          ],
-        ),
+        child: events.isEmpty
+            ? const Welcome()
+            : RefreshIndicator(
+                onRefresh: fetchEvents,
+                child: ListView(
+                  children: events.map((event) {
+                    return EventCard(event: event);
+                  }).toList(),
+                ),
+              ),
       ),
     );
   }

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:protec_app/screens/register.dart';
+import 'package:protec_app/utils/date.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,11 +10,33 @@ import '../components/app_bar.dart';
 import 'home.dart';
 import 'package:flutter/material.dart';
 
-class AlertScreen extends StatelessWidget {
-  AlertScreen({super.key, required this.message});
+class AlertScreen extends StatefulWidget {
+  const AlertScreen({super.key, required this.eventId});
+  final String eventId;
 
-  final RemoteMessage message;
+  @override
+  State<StatefulWidget> createState() => _AlertScreen();
+}
+
+class _AlertScreen extends State<AlertScreen> {
   final FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  var event;
+
+  void fetchEvent() async {
+    print('Fetching event...');
+    String eventId = widget.eventId;
+    http.get(Uri.parse('$apiUrl/event/$eventId')).then((response) {
+      if (response.statusCode == 200) {
+        setState(() {
+          event = jsonDecode(response.body);
+        });
+        print(event);
+      } else {
+        print(response.statusCode);
+      }
+    });
+  }
 
   void setAvailability(BuildContext context, bool availability) async {
     final body = {
@@ -20,11 +45,10 @@ class AlertScreen extends StatelessWidget {
     };
     print(body);
     http.post(
-        Uri.parse('$apiUrl/event/${message.data['eventId']}/answer'), body: body)
+        Uri.parse('$apiUrl/event/${widget.eventId}/answer'), body: body)
         .then((response) {
       if (response.statusCode == 200) {
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const Home()));
+        Navigator.of(context).pop();
       } else {
         print(response.statusCode);
       }
@@ -34,6 +58,16 @@ class AlertScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (event == null) {
+      fetchEvent();
+      return Scaffold(
+        appBar: appBar('Alert'),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
         appBar: appBar('Déclenchement'),
         body: Center(
@@ -48,23 +82,22 @@ class AlertScreen extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Text(message.data['title'] ?? '',
+            Text(event['title'] ?? '',
                 style:
                 const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-            Text(message.data['location'] ?? '',
+            Text(event['location'] ?? '',
                 style:
                 const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(
               height: 20,
             ),
-            Text(message.data['startDate'] + ' ' + message.data['startTime'] ??
-                ''),
-            Text(message.data['endDate'] + ' ' + message.data['endTime'] ?? ''),
+            Text(dateFormat.format(DateTime.parse(event['start'])) ?? '', style: const TextStyle(fontSize: 20)),
+            Text(dateFormat.format(DateTime.parse(event['end'])) ?? '', style: const TextStyle(fontSize: 20)),
             const SizedBox(
               height: 20,
             ),
-            Text(message.data['comment'] ?? '',
-                textAlign: TextAlign.center, style: TextStyle(fontSize: 20)),
+            Text(event['comment'] ?? '',
+                textAlign: TextAlign.center, style: const TextStyle(fontSize: 20)),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
 
@@ -100,7 +133,7 @@ class AlertScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () =>
-                  launchUrlString(message.data['eProtecLink'] ?? '',
+                  launchUrlString(event['eProtecLink'] ?? '',
                     mode: LaunchMode.platformDefault,
                   ),
               style: ButtonStyle(

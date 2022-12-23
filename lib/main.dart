@@ -76,8 +76,8 @@ class _Application extends State<Application> {
 
   void _handleMessage(RemoteMessage message) {
     if (navigatorKey.currentContext is BuildContext) {
-      Navigator.of(navigatorKey.currentContext as BuildContext).pushReplacement(MaterialPageRoute(
-          builder: (context) => AlertScreen(message: message)));
+      Navigator.of(navigatorKey.currentContext as BuildContext).push(MaterialPageRoute(
+          builder: (context) => AlertScreen(eventId: message.data['eventId'])));
     }
   }
 
