@@ -34,6 +34,9 @@ class _AlertScreen extends State<AlertScreen> {
           event = jsonDecode(response.body);
         });
       } else {
+        if (response.statusCode == 401) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const Register()));
+        }
         print(response.statusCode);
       }
     });
@@ -61,6 +64,10 @@ class _AlertScreen extends State<AlertScreen> {
         Navigator.of(context).pop();
       } else {
         print(response.statusCode);
+        if (response.statusCode == 401) {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const Register()));
+        }
       }
     });
   }
