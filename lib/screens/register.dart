@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 
 import 'home.dart';
 
-const String apiUrl = 'https://protect-app.loca.lt/api';
+const String apiUrl = 'https://protec-api.cchampou.me/api';
 
 class Register extends StatefulWidget {
   const Register({super.key});
