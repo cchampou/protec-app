@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:protec_app/screens/register.dart';
 import 'package:protec_app/utils/date.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:http/http.dart' as http;
 
 import '../components/app_bar.dart';
-import 'home.dart';
 import 'package:flutter/material.dart';
 
 class AlertScreen extends StatefulWidget {
@@ -26,12 +26,13 @@ class _AlertScreen extends State<AlertScreen> {
   void fetchEvent() async {
     print('Fetching event...');
     String eventId = widget.eventId;
-    http.get(Uri.parse('$apiUrl/event/$eventId')).then((response) {
+    const storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'token');
+    http.get(Uri.parse('$apiUrl/event/$eventId'), headers: { 'Authorization': 'Bearer $token' }).then((response) {
       if (response.statusCode == 200) {
         setState(() {
           event = jsonDecode(response.body);
         });
-        print(event);
       } else {
         print(response.statusCode);
       }
@@ -44,8 +45,17 @@ class _AlertScreen extends State<AlertScreen> {
       'deviceId': await messaging.getToken(),
     };
     print(body);
+    const storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'token');
+    if (token == null && mounted) {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Register()));
+      return;
+    }
     http.post(
-        Uri.parse('$apiUrl/event/${widget.eventId}/answer'), body: body)
+        Uri.parse('$apiUrl/event/${widget.eventId}/answer'), body: body, headers: {
+          'Authorization': 'Bearer $token'
+    })
         .then((response) {
       if (response.statusCode == 200) {
         Navigator.of(context).pop();

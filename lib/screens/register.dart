@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:protec_app/components/app_bar.dart';
 import 'package:http/http.dart' as http;
 
@@ -52,6 +53,9 @@ class _RegisterState extends State<Register> {
         return;
       }
       if (response.statusCode == 200) {
+        const storage = FlutterSecureStorage();
+        final json = jsonDecode(response.body);
+        storage.write(key: 'token', value: json['token']);
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const Home()));
       } else {
@@ -79,12 +83,15 @@ class _RegisterState extends State<Register> {
         _isLoading = false;
         _error = 'Le code saisi est incorrect';
       });
-    }).then((value) {
+    }).then((response) {
       setState(() {
         _isLoading = false;
         _error = 'Le code saisi est incorrect';
       });
-      if (value.statusCode == 200) {
+      if (response.statusCode == 200) {
+        const storage = FlutterSecureStorage();
+        final json = jsonDecode(response.body);
+        storage.write(key: 'token', value: json['token']);
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const Home()));
       }

@@ -1,10 +1,12 @@
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:protec_app/auth.dart';
 import 'package:protec_app/screens/register.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'screens/alert.dart';
 import 'firebase_options.dart';
 
@@ -89,13 +91,16 @@ class _Application extends State<Application> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ADPC69 - ProtecApp',
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
+    return ChangeNotifierProvider(
+      create: (context) => Auth(),
+      child: MaterialApp(
+        title: 'ADPC69 - ProtecApp',
+        theme: ThemeData(
+          primarySwatch: Colors.deepOrange,
+        ),
+        home: const Register(),
+        navigatorKey: navigatorKey,
       ),
-      home: const Register(),
-      navigatorKey: navigatorKey,
     );
   }
 }
