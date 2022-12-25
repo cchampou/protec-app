@@ -1,6 +1,9 @@
+import 'dart:convert';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:protec_app/auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:protec_app/screens/home.dart';
 import 'package:protec_app/screens/register.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -62,7 +65,6 @@ class Application extends StatefulWidget {
 }
 
 class _Application extends State<Application> {
-
   final navigatorKey = GlobalKey<NavigatorState>();
 
   Future<void> setupInteractedMessage() async {
@@ -78,8 +80,10 @@ class _Application extends State<Application> {
 
   void _handleMessage(RemoteMessage message) {
     if (navigatorKey.currentContext is BuildContext) {
-      Navigator.of(navigatorKey.currentContext as BuildContext).push(MaterialPageRoute(
-          builder: (context) => AlertScreen(eventId: message.data['eventId'])));
+      Navigator.of(navigatorKey.currentContext as BuildContext).push(
+          MaterialPageRoute(
+              builder: (context) =>
+                  AlertScreen(eventId: message.data['eventId'])));
     }
   }
 
@@ -91,16 +95,14 @@ class _Application extends State<Application> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => Auth(),
-      child: MaterialApp(
-        title: 'ADPC69 - ProtecApp',
-        theme: ThemeData(
-          primarySwatch: Colors.deepOrange,
-        ),
-        home: const Register(),
-        navigatorKey: navigatorKey,
+
+    return MaterialApp(
+      title: 'ADPC69 - ProtecApp',
+      theme: ThemeData(
+        primarySwatch: Colors.deepOrange,
       ),
+      home: const Home(),
+      navigatorKey: navigatorKey,
     );
   }
 }

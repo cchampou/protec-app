@@ -18,7 +18,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  bool _isLoading = true;
+  bool _isLoading = false;
   String _error = '';
 
   late TextEditingController _tokenController;
@@ -29,7 +29,6 @@ class _RegisterState extends State<Register> {
   void initState() {
     super.initState();
     _tokenController = TextEditingController();
-    checkRegistration();
   }
 
   @override
@@ -39,32 +38,7 @@ class _RegisterState extends State<Register> {
     super.dispose();
   }
 
-  checkRegistration() async {
-    print('Checking registration...');
-    final String? deviceId = await messaging.getToken();
-    if (deviceId == null) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-    http.get(Uri.parse('$apiUrl/device/check/$deviceId')).then((response) {
-      if (mounted == false) {
-        return;
-      }
-      if (response.statusCode == 200) {
-        const storage = FlutterSecureStorage();
-        final json = jsonDecode(response.body);
-        storage.write(key: 'token', value: json['token']);
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const Home()));
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
-  }
+
 
   registerDevice() async {
     setState(() {
