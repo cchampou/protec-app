@@ -78,7 +78,7 @@ class _AlertScreen extends State<AlertScreen> {
     if (event == null) {
       fetchEvent();
       return Scaffold(
-        appBar: appBar('Alert'),
+        appBar: appBar('Déclenchement'),
         body: const Center(
           child: CircularProgressIndicator(),
         ),

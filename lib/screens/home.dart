@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:protec_app/components/event_card.dart';
 import 'package:protec_app/components/welcome.dart';
 import 'package:protec_app/screens/register.dart';
+import 'package:protec_app/components/drawer.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -51,6 +52,7 @@ class _Home extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar('Accueil'),
+      drawer: const CustomDrawer(),
       body: Center(
         child: events.isEmpty
             ? const Welcome()
