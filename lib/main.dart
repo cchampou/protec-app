@@ -62,7 +62,11 @@ class _Application extends State<Application> {
   final navigatorKey = GlobalKey<NavigatorState>();
 
   Future<void> setupInteractedMessage() async {
-    await getAutoStartPermission();
+    bool? autoStart = await isAutoStartAvailable;
+    print(autoStart);
+    if (!autoStart!) {
+      await getAutoStartPermission();
+    }
     RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
 
