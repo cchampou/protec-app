@@ -3,7 +3,6 @@ import 'package:protec_app/screens/home.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:auto_start_flutter/auto_start_flutter.dart';
 import 'screens/alert.dart';
 import 'firebase_options.dart';
 
@@ -62,11 +61,6 @@ class _Application extends State<Application> {
   final navigatorKey = GlobalKey<NavigatorState>();
 
   Future<void> setupInteractedMessage() async {
-    bool? autoStart = await isAutoStartAvailable;
-    print(autoStart);
-    if (!autoStart!) {
-      await getAutoStartPermission();
-    }
     RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
 

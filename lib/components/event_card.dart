@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:protec_app/screens/alert.dart';
 
 import '../utils/date.dart';
 
 class EventCard extends StatelessWidget {
-  const EventCard({super.key, required this.event});
+  const EventCard({super.key, required this.event, required this.refresh});
 
   final Map event;
+  final Function refresh;
+
+  String getEmoji({ availability = 'pending' }) {
+    switch (availability) {
+      case 'pending':
+        return '⏳️';
+      case 'accepted':
+        return '✔️';
+      case 'refused':
+        return '❌';
+      default:
+        return '🤔';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final availability = getEmoji(availability: event['selfAvailability']);
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -21,11 +35,11 @@ class EventCard extends StatelessWidget {
               'images/protection_civile_logo.png',
               fit: BoxFit.contain,
             ),
-            title: Text(event['title']),
+            title: Text(event['title'] + ' - ' + availability),
             subtitle: Text(event['location'] + " - " + dateFormat.format(DateTime.parse(event['start']))),
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (builder) => AlertScreen(eventId: event["_id"])));
+                  builder: (builder) => AlertScreen(eventId: event["_id"]))).then((value) => refresh());
             },
           ),
         ],

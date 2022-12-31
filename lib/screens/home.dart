@@ -28,7 +28,8 @@ class _Home extends State<Home> {
       return;
     }
     print(token);
-    http.Response response = await http.get(Uri.parse('$apiUrl/event'), headers: {
+    http.Response response =
+        await http.get(Uri.parse('$apiUrl/event'), headers: {
       'Authorization': 'Bearer $token',
     });
     if (response.statusCode == 200) {
@@ -38,6 +39,10 @@ class _Home extends State<Home> {
       });
       print(events);
     } else {
+      if (response.statusCode == 401 && mounted) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Register()));
+      }
       print(response.statusCode);
     }
   }
@@ -60,7 +65,10 @@ class _Home extends State<Home> {
                 onRefresh: fetchEvents,
                 child: ListView(
                   children: events.map((event) {
-                    return EventCard(event: event);
+                    return EventCard(
+                      event: event,
+                      refresh: fetchEvents,
+                    );
                   }).toList(),
                 ),
               ),
