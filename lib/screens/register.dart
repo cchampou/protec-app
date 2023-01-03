@@ -75,7 +75,7 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Identification'),
+      appBar: appBar(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -86,6 +86,14 @@ class _RegisterState extends State<Register> {
                     const CircularProgressIndicator(),
                   ]
                 : [
+                    const Text(
+                      'Bienvenue. Pour vous identifier, veuillez saisir le code que vous avez reçu dans votre email d\'invitation.',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Text(
                       _error,
                       style: const TextStyle(
@@ -95,6 +103,7 @@ class _RegisterState extends State<Register> {
                       height: 20,
                     ),
                     TextField(
+                      keyboardType: TextInputType.number,
                       controller: _tokenController,
                       onSubmitted: (value) {
                         registerDevice();

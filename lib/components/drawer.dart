@@ -1,8 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:protec_app/screens/about.dart';
+import 'package:protec_app/screens/webview.dart';
 
 import '../screens/register.dart';
 
@@ -23,9 +22,17 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             title: const Text('Protection des données'),
             onTap: () {
-              launchUrlString('https://protec-api.cchampou.me/privacy-policy',
-                mode: LaunchMode.platformDefault,
-              );
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (builder) => const WebViewScreen(
+                      url: 'https://protec-api.cchampou.me/privacy-policy',
+                      title: 'Politique de confidentialité')));
+            },
+          ),
+          ListTile(
+            title: const Text('À propos'),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (builder) => AboutScreen()));
             },
           ),
           ListTile(

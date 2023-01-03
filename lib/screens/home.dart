@@ -17,7 +17,9 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
-  final events = [];
+  final pendingEvents = [];
+  final otherEvents = [];
+
 
   Future<void> fetchEvents() async {
     const storage = FlutterSecureStorage();
@@ -27,17 +29,18 @@ class _Home extends State<Home> {
           MaterialPageRoute(builder: (context) => const Register()));
       return;
     }
-    print(token);
     http.Response response =
         await http.get(Uri.parse('$apiUrl/event'), headers: {
       'Authorization': 'Bearer $token',
     });
     if (response.statusCode == 200) {
+      final List events = jsonDecode(response.body);
       setState(() {
-        events.clear();
-        events.addAll(jsonDecode(response.body));
+        pendingEvents.clear();
+        otherEvents.clear();
+        pendingEvents.addAll(events.where((event) => event['selfAvailability'] == 'pending'));
+        otherEvents.addAll(events.where((event) => event['selfAvailability'] != 'pending'));
       });
-      print(events);
     } else {
       if (response.statusCode == 401 && mounted) {
         Navigator.of(context).pushReplacement(
@@ -56,22 +59,43 @@ class _Home extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Accueil'),
+      appBar: appBar(),
       drawer: const CustomDrawer(),
-      body: Center(
-        child: events.isEmpty
-            ? const Welcome()
-            : RefreshIndicator(
-                onRefresh: fetchEvents,
-                child: ListView(
-                  children: events.map((event) {
-                    return EventCard(
-                      event: event,
-                      refresh: fetchEvents,
-                    );
-                  }).toList(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: pendingEvents.isEmpty && otherEvents.isEmpty
+              ? const Welcome()
+              : RefreshIndicator(
+                  onRefresh: fetchEvents,
+                  child: ListView(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text('Nécessite votre attention', style: TextStyle(fontSize: 24)),
+                      ),
+                      ...pendingEvents.map((event) {
+                        return EventCard(
+                          event: event,
+                          refresh: fetchEvents,
+                        );
+                      }).toList(),
+                      pendingEvents.isEmpty ? const Text('Aucun') : Container(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text('Historique', style: TextStyle(fontSize: 24)),
+                      ),
+                      ...otherEvents.map((event) {
+                        return EventCard(
+                          event: event,
+                          refresh: fetchEvents,
+                        );
+                      }).toList(),
+                      otherEvents.isEmpty ? const Text('Aucun') : Container(),
+                    ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

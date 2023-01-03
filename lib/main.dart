@@ -39,14 +39,6 @@ void main() async {
     sound: true,
   );
 
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    print('User granted permission');
-  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-    print('User granted provisional permission');
-  } else {
-    print('User declined or has not accepted permission');
-  }
-  print(await messaging.getToken());
   runApp(const Application());
 }
 
@@ -96,6 +88,19 @@ class _Application extends State<Application> {
       ),
       home: const Home(),
       navigatorKey: navigatorKey,
+      onGenerateRoute: (settings) {
+        final String path = settings.name!;
+        if (path.startsWith('/event/')) {
+          final args = path.split('/');
+
+          return MaterialPageRoute(
+            builder: (context) {
+              return AlertScreen(eventId: args[2]);
+            },
+          );
+        }
+        return null;
+      },
     );
   }
 }
