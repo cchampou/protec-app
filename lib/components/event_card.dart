@@ -13,13 +13,13 @@ class EventCard extends StatelessWidget {
   String getEmoji({ availability = 'pending' }) {
     switch (availability) {
       case 'pending':
-        return '⏳️';
+        return '⏳ - Non-répondu';
       case 'accepted':
-        return '✔️';
+        return '✔️ - Disponible';
       case 'refused':
-        return '❌';
+        return '❌ - Indisponible';
       default:
-        return '🤔';
+        return '🤔 - Réponse inconnue';
     }
   }
 
