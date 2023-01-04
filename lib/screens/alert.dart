@@ -9,7 +9,7 @@ import 'package:protec_app/screens/register.dart';
 import 'package:protec_app/utils/colors.dart';
 import 'package:protec_app/utils/date.dart';
 import 'package:protec_app/utils/event.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:protec_app/utils/fetch.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:protec_app/components/app_bar.dart';
@@ -33,26 +33,20 @@ class _AlertScreen extends State<AlertScreen> {
 
   void fetchEvent() async {
     String eventId = widget.eventId;
-    const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: 'token');
-    http.get(Uri.parse('$apiUrl/event/$eventId'),
-        headers: {'Authorization': 'Bearer $token'}).then((response) {
-      if (response.statusCode == 200) {
-        Map decoded = jsonDecode(response.body);
-        final bool hasNotYetAnswered = decoded["selfAvailability"] == 'pending';
-        setState(() {
-          event = decoded;
-          edit = hasNotYetAnswered;
-          canCancel = !hasNotYetAnswered;
-        });
-      } else {
-        if (response.statusCode == 401) {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const Register()));
-        }
-        print(response.statusCode);
-      }
-    });
+
+    try {
+      final json = await getFromApi(path: '/event/$eventId');
+      final payload = json["payload"];
+      final bool hasNotYetAnswered = payload["selfAvailability"] == 'pending';
+      setState(() {
+        event = payload;
+        edit = hasNotYetAnswered;
+        canCancel = !hasNotYetAnswered;
+      });
+    } catch (e) {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Register()));
+    }
   }
 
   void cancel() {
@@ -66,29 +60,28 @@ class _AlertScreen extends State<AlertScreen> {
       'availability': availability.toString(),
       'deviceId': await messaging.getToken(),
     };
-    const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: 'token');
-    if (token == null && mounted) {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const Register()));
-      return;
-    }
-    http.post(Uri.parse('$apiUrl/event/${widget.eventId}/answer'),
-        body: body,
-        headers: {'Authorization': 'Bearer $token'}).then((response) {
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(
-            msg: 'Nous avons bien pris en compte votre réponse',
-            toastLength: Toast.LENGTH_LONG);
-        fetchEvent();
-      } else {
-        print(response.statusCode);
-        if (response.statusCode == 401) {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const Register()));
+    try {
+      String token = await getTokenFromStorage();
+      final response = await http.post(
+          Uri.parse('$apiUrl/event/${widget.eventId}/answer'),
+          body: body,
+          headers: {'Authorization': 'Bearer $token'}).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(
+              msg: 'Nous avons bien pris en compte votre réponse',
+              toastLength: Toast.LENGTH_LONG);
+          fetchEvent();
+        } else {
+          throw Exception(response.statusCode);
         }
+      });
+    } catch (e) {
+      print(e);
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Register()));
       }
-    });
+    }
   }
 
   @override

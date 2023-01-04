@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:protec_app/components/app_bar.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:protec_app/utils/fetch.dart';
 import 'home.dart';
 
-const String apiUrl = 'https://protec-api.cchampou.me/api';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -33,12 +32,9 @@ class _RegisterState extends State<Register> {
 
   @override
   void dispose() {
-    print('dispose');
     _tokenController.dispose();
     super.dispose();
   }
-
-
 
   registerDevice() async {
     setState(() {
@@ -65,7 +61,8 @@ class _RegisterState extends State<Register> {
       if (response.statusCode == 200) {
         const storage = FlutterSecureStorage();
         final json = jsonDecode(response.body);
-        storage.write(key: 'token', value: json['token']);
+        final payload = json["payload"];
+        storage.write(key: 'token', value: payload['token']);
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const Home()));
       }
@@ -88,7 +85,8 @@ class _RegisterState extends State<Register> {
                 : [
                     const Text(
                       'Bienvenue. Pour vous identifier, veuillez saisir le code que vous avez reçu dans votre email d\'invitation.',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(
